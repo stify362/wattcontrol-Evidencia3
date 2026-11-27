@@ -37,8 +37,12 @@ public:
     // Cuantos vehiculos de un tipo llegan un dia a una hora.
     // tipo 0 = carros, tipo 1 = motos (el mismo orden del arreglo de tipos)
     int llegadas(int tipo, int dia, int hora) {
+        if (dia < 0 || dia >= DIAS_SEMANA || hora < 0 || hora >= HORAS_DIA) {
+            return 0;
+        }
+
         if (tipo == 0) {
-            return CARROS[dia][hora];   // fila dia, columna hora
+            return CARROS[dia][hora];
         }
         return MOTOS[dia][hora];
     }
