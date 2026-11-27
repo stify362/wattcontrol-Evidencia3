@@ -24,12 +24,6 @@ bool Negocio::agregarCarga(Carga* carga) {
 void Negocio::evaluarCargas(int hora, double precio, double embalses) {
     const bool riesgoEmbalses = embalses < config::EMBALSE_ALERTA_PCT;
 
-    if (riesgoEmbalses) {
-        std::cout << "[ALERTA] Riesgo: embalses por debajo de "
-                  << config::EMBALSE_ALERTA_PCT
-                  << "%. Solo se mantendran las cargas no aplazables.\n";
-    }
-
     // Esta es la unica consulta de decision: cada carga responde de forma
     // polimorfica y Negocio aplica despues las reglas generales del negocio.
     for (int i = 0; i < numeroCargas_; ++i) {
@@ -131,6 +125,11 @@ void Negocio::simularSemana() {
     if (mercado_ == nullptr) {
         std::cout << "[ERROR] No se puede simular: el mercado no esta disponible.\n";
         return;
+    }
+        if (mercado_->nivelEmbalses() < config::EMBALSE_ALERTA_PCT) {
+        std::cout << "[ALERTA] Embalses bajo el "
+                  << config::EMBALSE_ALERTA_PCT
+                  << "%. Se limitaran las cargas aplazables durante la semana.\n";
     }
 
     medidor_.reiniciar();
