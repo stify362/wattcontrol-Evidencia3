@@ -8,7 +8,10 @@
 // =============================================================
 class Afluencia {
 private:
-    // const: los datos no cambian. La fila es el dia y la columna es la hora
+    // Matriz semanal de carros: 7 dias x 24 horas.
+    // Cada fila representa un dia de la semana.
+    // Cada columna representa una hora del dia.
+    // Los datos son fijos y no se generan con rand().
     const int CARROS[DIAS_SEMANA][HORAS_DIA] = {
     //   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23   <- hora
         { 0, 0, 0, 0, 1, 3, 9,21,27,19,13,11,13,18,11,11,12,21,26,20, 8, 6, 2, 0},  // Lunes
@@ -34,24 +37,55 @@ public:
     // Cuantos vehiculos de un tipo llegan un dia a una hora.
     // tipo 0 = carros, tipo 1 = motos (el mismo orden del arreglo de tipos)
     int llegadas(int tipo, int dia, int hora) {
+        if (dia < 0 || dia >= DIAS_SEMANA || hora < 0 || hora >= HORAS_DIA) {
+            return 0;
+        }
+
         if (tipo == 0) {
-            return CARROS[dia][hora];   // fila dia, columna hora
+            return CARROS[dia][hora];
         }
         return MOTOS[dia][hora];
     }
 
-    // Muestra la matriz de carros: dos for anidados, filas y columnas
+    // Muestra las matrices de carros y motos: dos for anidados
     void mostrar() {
         cout << "\nCarros que llegan (fila = dia, columna = hora)" << endl;
-        cout << setw(10) << "Dia";                           // encabezado
-        for (int h = 0; h < HORAS_DIA; h += 2) cout << setw(4) << h;   // cada 2 horas, para que quepa
+        cout << setw(10) << "Dia";
+
+        for (int h = 0; h < HORAS_DIA; h++) {
+            cout << setw(4) << h;
+        }
+
         cout << endl;
-        linea(10 + 4 * 12);                                  // sobrecarga: solo el largo
-        for (int d = 0; d < DIAS_SEMANA; d++) {              // for externo: los dias (filas)
+        linea(10 + 4 * HORAS_DIA);
+
+        for (int d = 0; d < DIAS_SEMANA; d++) {
             cout << setw(10) << DIAS[d];
-            for (int h = 0; h < HORAS_DIA; h += 2) {         // for interno: las horas (columnas)
+
+            for (int h = 0; h < HORAS_DIA; h++) {
                 cout << setw(4) << CARROS[d][h];
             }
+
+            cout << endl;
+        }
+
+        cout << "\nMotos que llegan (fila = dia, columna = hora)" << endl;
+        cout << setw(10) << "Dia";
+
+        for (int h = 0; h < HORAS_DIA; h++) {
+            cout << setw(4) << h;
+        }
+
+        cout << endl;
+        linea(10 + 4 * HORAS_DIA);
+
+        for (int d = 0; d < DIAS_SEMANA; d++) {
+            cout << setw(10) << DIAS[d];
+
+            for (int h = 0; h < HORAS_DIA; h++) {
+                cout << setw(4) << MOTOS[d][h];
+            }
+
             cout << endl;
         }
     }
