@@ -57,3 +57,34 @@ void Mercado::actualizarNivelEmbalses(double nivelPct) {
     embalsesPct_ = nivelPct;
     cargarTarifasSemanales();
 }
+
+double Mercado::getPrecio(int dia, int hora) const {
+    if (dia < 0 || dia >= DIAS_SEMANA ||
+        hora < 0 || hora >= HORAS_DIA) {
+        return 0.0;
+    }
+
+    return preciosSemana_[dia][hora];
+}
+
+double Mercado::getPrecio(int hora) const {
+    // Consulta por defecto sobre el dia lunes (indice 0)
+    return getPrecio(0, hora);
+}
+
+double Mercado::precioHora(int hora) const {
+    return getPrecio(hora);
+}
+
+double Mercado::calcularPromedioSemanal() const {
+    double suma = 0.0;
+    int totalCeldas = DIAS_SEMANA * HORAS_DIA;
+
+    for (int d = 0; d < DIAS_SEMANA; ++d) {
+        for (int h = 0; h < HORAS_DIA; ++h) {
+            suma += preciosSemana_[d][h];
+        }
+    }
+
+    return (totalCeldas > 0) ? (suma / totalCeldas) : 0.0;
+}
