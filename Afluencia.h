@@ -8,7 +8,10 @@
 // =============================================================
 class Afluencia {
 private:
-    // const: los datos no cambian. La fila es el dia y la columna es la hora
+    // Matriz semanal de carros: 7 dias x 24 horas.
+    // Cada fila representa un dia de la semana.
+    // Cada columna representa una hora del dia.
+    // Los datos son fijos y no se generan con rand().
     const int CARROS[DIAS_SEMANA][HORAS_DIA] = {
     //   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23   <- hora
         { 0, 0, 0, 0, 1, 3, 9,21,27,19,13,11,13,18,11,11,12,21,26,20, 8, 6, 2, 0},  // Lunes
