@@ -1,5 +1,4 @@
 #include "CargaAplazable.h"
-#include "configuracion.h"
 
 CargaAplazable::CargaAplazable(const std::string& nombre, double potenciaKW)
     : Carga(nombre, potenciaKW) {}
@@ -9,9 +8,10 @@ bool CargaAplazable::debeEncender(int hora, double precioCOPkWh, double embalses
     const bool horaPico = (hora >= config::PICO_INICIO && hora <= config::PICO_FIN);
     const bool precioAlto = precioCOPkWh > config::PRECIO_CARO_COP_KWH;
 
+    // Se aplaza durante franja pico, tarifa alta o alerta de embalses bajos
     return !(embalsesCriticos || horaPico || precioAlto);
 }
 
-bool CargaAplazable::esAplazable() const {
-    return true;
+std::string CargaAplazable::tipo() const {
+    return "Aplazable";
 }
