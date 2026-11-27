@@ -1,7 +1,17 @@
 #ifndef REPORTE_H
 #define REPORTE_H
 
-// Declaración de la función para mostrar el reporte final de consumo
-void generarReporteConsumo(double energiaTotalKWh, double costoTotalCOP);
+#include "Carga.h"
+#include "configuracion.h"
+#include <string>
 
-#endif // REPORTE_H
+class Reporte {
+public:
+    static void mostrarResumenDiario(const std::string& negocio, double totalKWh, double costoTotalCOP);
+    static void mostrarReporteSemanal(const std::string& negocio,
+                                      Carga* const cargas[],
+                                      int numCargas,
+                                      const double tarifasSemana[DIAS_SEMANA][HORAS_DIA]);
+};
+
+#endif
