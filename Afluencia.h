@@ -47,18 +47,45 @@ public:
         return MOTOS[dia][hora];
     }
 
-    // Muestra la matriz de carros: dos for anidados, filas y columnas
+    // Muestra las matrices de carros y motos: dos for anidados
     void mostrar() {
         cout << "\nCarros que llegan (fila = dia, columna = hora)" << endl;
-        cout << setw(10) << "Dia";                           // encabezado
-        for (int h = 0; h < HORAS_DIA; h += 2) cout << setw(4) << h;   // cada 2 horas, para que quepa
+        cout << setw(10) << "Dia";
+
+        for (int h = 0; h < HORAS_DIA; h++) {
+            cout << setw(4) << h;
+        }
+
         cout << endl;
-        linea(10 + 4 * 12);                                  // sobrecarga: solo el largo
-        for (int d = 0; d < DIAS_SEMANA; d++) {              // for externo: los dias (filas)
+        linea(10 + 4 * HORAS_DIA);
+
+        for (int d = 0; d < DIAS_SEMANA; d++) {
             cout << setw(10) << DIAS[d];
-            for (int h = 0; h < HORAS_DIA; h += 2) {         // for interno: las horas (columnas)
+
+            for (int h = 0; h < HORAS_DIA; h++) {
                 cout << setw(4) << CARROS[d][h];
             }
+
+            cout << endl;
+        }
+
+        cout << "\nMotos que llegan (fila = dia, columna = hora)" << endl;
+        cout << setw(10) << "Dia";
+
+        for (int h = 0; h < HORAS_DIA; h++) {
+            cout << setw(4) << h;
+        }
+
+        cout << endl;
+        linea(10 + 4 * HORAS_DIA);
+
+        for (int d = 0; d < DIAS_SEMANA; d++) {
+            cout << setw(10) << DIAS[d];
+
+            for (int h = 0; h < HORAS_DIA; h++) {
+                cout << setw(4) << MOTOS[d][h];
+            }
+
             cout << endl;
         }
     }
