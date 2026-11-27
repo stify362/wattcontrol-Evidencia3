@@ -1,18 +1,83 @@
 ﻿# WattControl · Sistema de Gestión Energética (Panadería) — Evidencia 3
 
-Sistema en C++ orientado a objetos para simular, controlar y optimizar el consumo eléctrico semanal (7 días × 24 horas) de una panadería comercial en Colombia, respetando el límite de potencia contratada (9.0 kW), franjas horarias pico (18:00–20:00) y alertas por nivel crítico de embalses (< 40%).
+Sistema en C++ orientado a objetos para simular, controlar y optimizar el consumo eléctrico semanal (`7 días × 24 horas`) de una panadería comercial en Colombia, respetando el límite de potencia contratada (`9.0 kW`), franjas horarias pico (`18:00–20:00`) y alertas por nivel crítico de embalses (`< 40%`).
 
-## Arquitectura POO (5 Relaciones)
-- **Herencia:** Carga → CargaCritica (Nevera de insumos) y CargaAplazable (Horno eléctrico, Amasadora).
-- **Composición:** Negocio contiene de forma exclusiva a Medidor.
-- **Agregación:** Negocio administra colecciones de Carga*.
-- **Asociación:** Negocio consulta tarifas y estado hídrico desde Mercado*.
-- **Dependencia:** wattcontrol.cpp, Reporte y Mercado utilizan configuracion.h y utilidades.h.
+## Diagrama de Clases UML (Arquitectura Evidencia 3)
 
-## Distribución del Equipo
-| Integrante | Issue | Rama | Responsabilidad |
-| :--- | :---: | :--- | :--- |
-| **Stify (Líder)** | #1 | eature/utilidades-wattcontrol | Configuración [7][24], funciones transversales, sobrecarga y validaciones string |
-| **Gissell** | #2 | eature/mercado-semanal | Matriz semanal de tarifas COP/kWh y alertas de embalses (Mercado) |
-| **Daniela** | #3 | eature/cargas-reporte-semanal | Consumo semanal de cargas eléctricas y reportes comparativos (Carga, Reporte) |
-| **Isaac** | #4 | eature/negocio-medidor-semanal | Medición semanal, reglas de despacho y menú interactivo (Medidor, Negocio, wattcontrol.cpp) |
+```mermaid
+classDiagram
+    class Carga {
+        #string nombre_
+        #double potenciaKW_
+        #bool encendida_
+        #double consumoSemanal_[7][24]
+        +debeEncender(hora, precio, embalses)* bool
+        +tipo()* string
+        +registrarConsumo(dia, hora, kwh) void
+        +registrarConsumo(dia, hora) void
+        +calcularConsumoTotalSemanal() double
+    }
+
+    class CargaCritica {
+        +debeEncender(hora, precio, embalses) bool
+        +tipo() string
+    }
+
+    class CargaAplazable {
+        +debeEncender(hora, precio, embalses) bool
+        +tipo() string
+    }
+
+    class Mercado {
+        -string operador
+        -double nivelEmbalses
+        -double preciosSemana[7][24]
+        +cargarTarifasSemanales() void
+        +getPrecio(dia, hora) double
+        +getPrecio(hora) double
+        +esHoraPico(hora) bool
+        +hayAlertaEmbalses() bool
+        +calcularPromedioSemanal() double
+    }
+
+    class Medidor {
+        -double lecturasSemana[7][24]
+        +registrarLectura(dia, hora, kw) void
+        +superaPotenciaContratada(kw) bool
+        +calcularTotalSemanal() double
+    }
+
+    class Negocio {
+        -string nombre_
+        -Medidor medidor_
+        -Carga* cargas_[10]
+        -Mercado* mercado_
+        +agregarCarga(carga) bool
+        +evaluarCargas(dia, hora) void
+        +simularSemana() void
+    }
+
+    class Reporte {
+        +mostrarResumenDiario(negocio, kwh, cop)$ void
+        +mostrarReporteSemanal(negocio, cargas, n, tarifas)$ void
+    }
+
+    class Utilidades {
+        <<modulo utilidades.h>>
+        +totalSemana(matriz) double
+        +promedio(matriz) double
+        +diaMayor(matriz) int
+        +horaMayor(matriz) int
+        +calcularCosto(kwh, tarifa) double
+        +calcularCosto(consumo, tarifas) double
+        +validarNombreEquipo(nombre) bool
+    }
+
+    Carga <|-- CargaCritica : Herencia
+    Carga <|-- CargaAplazable : Herencia
+    Negocio "1" *-- "1" Medidor : Composicion
+    Negocio "1" o-- "1..*" Carga : Agregacion
+    Negocio --> "1" Mercado : Asociacion
+    Reporte ..> Carga : Dependencia
+    Mercado ..> Utilidades : Dependencia
+    Carga ..> Utilidades : Dependencia
