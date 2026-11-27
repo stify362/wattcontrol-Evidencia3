@@ -49,30 +49,48 @@ void Negocio::evaluarCargas(int hora, double precio, double embalses) {
         }
     }
 
-    if (potenciaTotalKW > config::POTENCIA_CONTRATADA_KW) {
-        int indiceMayor = -1;
-        double mayorPotenciaKW = 0.0;
+    while (medidor_.superaPotenciaContratada(potenciaTotalKW)) {
+    int indiceApagar = -1;
+    double mayorPotenciaKW = 0.0;
 
+    // Buscar primero la carga aplazable encendida de mayor potencia.
+    for (int i = 0; i < numeroCargas_; ++i) {
+        if (cargas_[i] != nullptr &&
+            cargas_[i]->encendida() &&
+            cargas_[i]->esAplazable() &&
+            cargas_[i]->potenciaKW() > mayorPotenciaKW) {
+            indiceApagar = i;
+            mayorPotenciaKW = cargas_[i]->potenciaKW();
+        }
+    }
+
+    // Si no quedan aplazables encendidas, buscar cualquier carga encendida.
+    if (indiceApagar == -1) {
         for (int i = 0; i < numeroCargas_; ++i) {
-            if (cargas_[i] != nullptr && cargas_[i]->encendida()
-                && cargas_[i]->potenciaKW() > mayorPotenciaKW) {
-                indiceMayor = i;
+            if (cargas_[i] != nullptr &&
+                cargas_[i]->encendida() &&
+                cargas_[i]->potenciaKW() > mayorPotenciaKW) {
+                indiceApagar = i;
                 mayorPotenciaKW = cargas_[i]->potenciaKW();
             }
         }
 
-        if (indiceMayor >= 0) {
-            std::cout << "[ALERTA] Potencia solicitada: " << potenciaTotalKW
-                      << " kW. Supera los "
-                      << config::POTENCIA_CONTRATADA_KW
-                      << " kW contratados.\n";
-            cargas_[indiceMayor]->fijarEncendida(false);
-            potenciaTotalKW -= mayorPotenciaKW;
-            std::cout << "[CONTROL] Se apaga " << cargas_[indiceMayor]->nombre()
-                      << " (" << mayorPotenciaKW << " kW). Potencia restante: "
-                      << potenciaTotalKW << " kW.\n";
+        if (indiceApagar != -1) {
+            std::cout << "[EMERGENCIA] Se apaga una carga para respetar el limite.\n";
         }
     }
+
+    // Si no hay nada encendido que apagar, salir del ciclo.
+    if (indiceApagar == -1) {
+        break;
+    }
+
+    cargas_[indiceApagar]->fijarEncendida(false);
+    potenciaTotalKW -= mayorPotenciaKW;
+
+    std::cout << "[CONTROL] Se apaga " << cargas_[indiceApagar]->nombre()
+              << ". Potencia restante: " << potenciaTotalKW << " kW.\n";
+}
 }
 
 // Método principal que ejecuta la simulación de las 24 horas del día
@@ -101,7 +119,7 @@ void Negocio::simularDia() {
         evaluarCargas(hora, precioActual, embalsesActual);
 
         // C. Registramos el consumo energético de esta hora exacta en el medidor
-        registrarConsumoHora(precioActual);
+        registrarConsumoHora(0, hora, precioActual);
     }
 
     std::cout << "[SIMULACION] ¡Simulacion de 24 horas completada con exito!" << std::endl;
@@ -109,23 +127,51 @@ void Negocio::simularDia() {
     // 4. Al finalizar las 24 horas, invocamos el reporte de consumo con los totales del medidor
     generarReporteConsumo(medidor_.energiaTotalKWh(), medidor_.costoTotalCOP());
 }
+void Negocio::simularSemana() {
+    if (mercado_ == nullptr) {
+        std::cout << "[ERROR] No se puede simular: el mercado no esta disponible.\n";
+        return;
+    }
 
-// Método para calcular y registrar el consumo de una hora dada en el medidor
-void Negocio::registrarConsumoHora(double precioCOPKWh) {
-    double potenciaTotalHoraKWh = 0.0;
+    medidor_.reiniciar();
 
-    // Recorremos todas las cargas agregadas al negocio
     for (int i = 0; i < numeroCargas_; ++i) {
-        // Verificamos que la carga exista y que se encuentre encendida en esta hora
+        if (cargas_[i] != nullptr) {
+            cargas_[i]->reiniciar();
+        }
+    }
+
+    horasSimuladas_ = 0;
+    tieneSimulacion_ = true;
+
+    for (int dia = 0; dia < DIAS_SEMANA; ++dia) {
+        for (int hora = 0; hora < HORAS_DIA; ++hora) {
+            const double precioActual = mercado_->precioHora(hora);
+            const double embalsesActual = mercado_->nivelEmbalses();
+
+            evaluarCargas(hora, precioActual, embalsesActual);
+            registrarConsumoHora(dia, hora, precioActual);
+            ++horasSimuladas_;
+        }
+    }
+
+    generarReporteConsumo(
+        medidor_.energiaTotalKWh(),
+        medidor_.costoTotalCOP()
+    );
+}
+// Método para calcular y registrar el consumo de una hora dada en el medidor
+void Negocio::registrarConsumoHora(int dia, int hora, double precioCOPkWh) {
+    double potenciaTotalKW = 0.0;
+    for (int i = 0; i < numeroCargas_; ++i) 
+    {
         if (cargas_[i] != nullptr && cargas_[i]->encendida()) {
-            potenciaTotalHoraKWh += cargas_[i]->potenciaKW();
+            potenciaTotalKW += cargas_[i]->potenciaKW();
             cargas_[i]->registrarHora();
         }
     }
 
-    // Enviamos la potencia total y el precio actual al medidor para que
-    // actualice energia y costo.
-    medidor_.registrarHora(potenciaTotalHoraKWh, precioCOPKWh);
+    medidor_.registrarLectura(dia, hora, potenciaTotalKW, precioCOPkWh);
 }
 
 // Método para mostrar el resumen de la última simulación
