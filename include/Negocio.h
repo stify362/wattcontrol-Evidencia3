@@ -14,7 +14,7 @@ private:
     int numeroCargas_ = 2;
     Mercado* mercado_;                      // Asociacion (no se hace delete)
     double costoSinGestorCOP_ = 0.0;
-    int horasSimuladas_ = 17;
+    int horasSimuladas_ = 0; // Contador de horas simuladas en 0
     int fallasLectura_ = 0;
     bool emergencia_ = false;
     bool tieneSimulacion_ = false;
@@ -23,8 +23,9 @@ public:
     Negocio(const std::string& nombre, Mercado* mercado);
     bool agregarCarga(Carga* carga);
     void evaluarCargas(int hora, double precioCOPkWh, double embalsesPct);
-    void registrarConsumoHora(double precioCOPkWh);
-    void simularDia();                     // C02
+    void registrarConsumoHora(int dia, int hora, double precioCOPkWh);
+    void simularDia();
+    void simularSemana(); // Declaramos la simulacion semanal también.
     void mostrarResumen() const;           // C03
     double costoSinGestorCOP() const { return costoSinGestorCOP_; }
     double ahorroCOP() const { return costoSinGestorCOP_ - medidor_.costoTotalCOP(); }

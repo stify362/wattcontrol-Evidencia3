@@ -25,11 +25,12 @@ int main() {
     double precioManual = 600.0;
     double embalsesManual = mercado.nivelEmbalses();
     do {
-        std::cout << "\n===== WATTCONTROL PANADERIA (PLANTILLA EA2) =====\n"
+        std::cout << "\n===== WATTCONTROL PANADERIA EA3 =====\n"
                   << "1. Ingresar lectura manual\n"
                   << "2. Evaluar decision de cada carga\n"
                   << "3. Simular un dia completo\n"
                   << "4. Ver resumen de la ultima simulacion\n"
+                  << "5. Simular una semana completa\n"
                   << "0. Salir\nOpcion: ";
         if (!(std::cin >> opcion)) {
             if (std::cin.eof()) {
@@ -99,6 +100,9 @@ int main() {
             break;
         case 4:
             panaderia.mostrarResumen();
+            break;
+        case 5:
+            panaderia.simularSemana();
             break;
         case 0:
             std::cout << "Hasta luego.\n";
