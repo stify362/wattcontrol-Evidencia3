@@ -1,8 +1,8 @@
 #ifndef UTILIDADES_H
 #define UTILIDADES_H
-
-#include "configuracion.h"
 #include <iostream>
+#include <iomanip>
+#include "configuracion.h"
 #include <string>
 #include <cctype>
 
@@ -137,5 +137,11 @@ inline std::string pedirNombreEquipoValido() {
         std::cout << "Nombre invalido. Evite simbolos especiales o textos vacios.\n";
     }
 }
-
+inline void generarReporteConsumo(double totalKWh, double costoTotalCOP) {
+    linea('=', 60);
+    std::cout << "RESUMEN DE CONSUMO ENERGETICO\n";
+    std::cout << "Consumo total : " << std::fixed << std::setprecision(2) << totalKWh << " kWh\n";
+    std::cout << "Costo estimado: $" << std::setprecision(0) << costoTotalCOP << " COP\n";
+    linea('=', 60);
+}
 #endif

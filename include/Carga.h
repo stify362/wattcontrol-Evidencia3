@@ -11,7 +11,21 @@ protected:
     bool encendida_;
     double consumoSemanal_[DIAS_SEMANA][HORAS_DIA]; // kWh registrados por dia y hora
 
-public:
+public:bool esAplazable() const { return tipo() == "Aplazable"; }
+
+void reiniciar() {
+    encendida_ = false;
+    for (int d = 0; d < DIAS_SEMANA; ++d) {
+        for (int h = 0; h < HORAS_DIA; ++h) {
+            consumoSemanal_[d][h] = 0.0;
+        }
+    }
+}
+
+void registrarHora() {
+    // Mantiene compatibilidad con el conteo horario por dia
+    encendida_ = true;
+}
     Carga(const std::string& nombre, double potenciaKW);
     virtual ~Carga() = default;
 
