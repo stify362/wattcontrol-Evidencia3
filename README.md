@@ -1,18 +1,16 @@
-# WattControl · Sistema de Gestión Energética (Panadería) — Evidencia 3
+﻿# WattControl - Sistema de Gestion Energetica (Panaderia) - Evidencia 3
 
-Sistema en C++ orientado a objetos para simular, controlar y optimizar el consumo eléctrico semanal (`7 días × 24 horas`) de una panadería comercial en Colombia, respetando el límite de potencia contratada (`9.0 kW`), franjas horarias pico (`18:00–20:00`) y alertas por nivel crítico de embalses (`< 40%`).
+Sistema en C++ orientado a objetos para simular, controlar y optimizar el consumo electrico semanal (7 dias x 24 horas) de una panaderia comercial en Colombia, respetando el limite de potencia contratada (9.0 kW), franjas horarias pico (18:00-20:00) y alertas por nivel critico de embalses (< 40%).
 
 ---
 
 ## Arquitectura Orientada a Objetos (POO)
 
-El sistema implementa las 5 relaciones fundamentales del paradigma orientado a objetos aplicadas al dominio energético:
-
-* **Herencia (`Carga` → `CargaCritica`, `CargaAplazable`):** Polimorfismo en la decisión de encendido (`debeEncender`) según la criticidad operativa del equipo (hornos y refrigeración vs. amasadoras y batidoras) y el estado del mercado.
-* **Composición (`Negocio` ◆— `Medidor`):** El medidor inteligente pertenece exclusivamente al ciclo de vida del negocio y almacena la matriz semanal de consumo (`[7][24]`).
-* **Agregación (`Negocio` ◇— `Carga*`):** El negocio administra una colección dinámica de equipos eléctricos (`Carga*`) independientes entre sí.
-* **Asociación (`Negocio` —— `Mercado*`):** El negocio consulta las tarifas horarias en COP/kWh y el porcentaje de embalses del mercado energético colombiano.
-* **Dependencia (`wattcontrol.cpp`, `Reporte`, `utilidades`, `configuracion`):** Módulos transversales de análisis semanal, proyección de ahorro mensual (`× 4`) y formateo de tablas en consola.
+* **Herencia (`Carga` -> `CargaCritica`, `CargaAplazable`):** Polimorfismo en la decision de encendido (`debeEncender`) segun la criticidad operativa del equipo y el estado del mercado.
+* **Composicion (`Negocio` *-- `Medidor`):** El medidor inteligente pertenece exclusivamente al negocio y almacena la matriz semanal de consumo (`[7][24]`).
+* **Agregacion (`Negocio` o-- `Carga*`):** El negocio administra una coleccion dinamica de equipos electricos independientes.
+* **Asociacion (`Negocio` --> `Mercado*`):** El negocio consulta las tarifas horarias en COP/kWh y el porcentaje de embalses.
+* **Dependencia (`wattcontrol.cpp`, `Reporte`, `utilidades`, `configuracion`):** Modulos transversales de analisis semanal, proyeccion mensual (x 4) y reportes en consola.
 
 ---
 
@@ -67,15 +65,20 @@ classDiagram
         +mostrarReporteSemanal(negocio) void
         +compararEscenarios(base, optimizado) void
     }
-
     Carga <|-- CargaCritica : Herencia
     Carga <|-- CargaAplazable : Herencia
-    Negocio *-- Medidor : Composición
-    Negocio o-- Carga : Agregación
-    Negocio --> Mercado : Asociación
+    Negocio *-- Medidor : Composicion
+    Negocio o-- Carga : Agregacion
+    Negocio --> Mercado : Asociacion
     Negocio ..> Reporte : Dependencia
+```
 
-    wattcontrol-Evidencia3/
+---
+
+## Estructura del Proyecto
+
+```text
+wattcontrol-Evidencia3/
 ├── include/
 │   ├── Carga.h
 │   ├── CargaAplazable.h
@@ -96,6 +99,24 @@ classDiagram
 │   ├── Reporte.cpp
 │   └── wattcontrol.cpp
 └── README.md
+```
 
+---
+
+## Compilacion y Ejecucion
+
+```bash
 g++ -std=c++17 -Wall -Wextra -Iinclude src/*.cpp -o wattcontrol
 ./wattcontrol
+```
+
+---
+
+## Equipo de Desarrollo y Modulos (Evidencia 3)
+
+| Integrante | Issue | Modulo / Responsabilidad |
+| :--- | :---: | :--- |
+| **Stify** (Lider) | `#1` | Configuracion semanal (`[7][24]`), utilidades transversales, integracion y documentacion (`README.md`) |
+| **Gissell** | `#2` | Modelado semanal del `Mercado` energetico, sobrecostos horarios y alertas de embalses (`< 40%`) |
+| **Daniela** | `#3` | Jerarquia de `Carga` (`CargaCritica`, `CargaAplazable`) y reportes comparativos de ahorro (`Reporte`) |
+| **Isaac** | `#4` | Orquestacion de `Negocio`, registro en `Medidor` semanal y menu principal (`src/wattcontrol.cpp`) |
